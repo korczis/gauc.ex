@@ -6,7 +6,12 @@ defmodule Gauc.Mixfile do
       app: :gauc,
       version: "0.1.0",
       elixir: "~> 1.5",
+      build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
+      compilers: [:rustler] ++ Mix.compilers,
+      rustler_crates: rustler_crates(),
+      description: description(),
+      package: package(),
       deps: deps()
     ]
   end
@@ -21,8 +26,41 @@ defmodule Gauc.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:rustler, "~> 0.10"},
+    ]
+  end
+
+  def rustler_crates do
+    [
+      fintech: [
+        path: "native/gauc",
+        mode: :debug
+      ]
+    ]
+  end
+
+  defp description() do
+    "Elxir Wrapper for Gauc - Rust Wrapper for Couchbase"
+  end
+
+  defp package() do
+    [
+      # This option is only needed when you don't want to use the OTP application name
+      name: "gauc",
+      # These are the default files included in the package
+      files:
+        [
+        "lib",
+        "mix.exs",
+        "README*",
+        "LICENSE*"
+      ],
+      maintainers:
+        [
+        "Tomas Korcak <korczis@gmail.com>"
+      ],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/korczis/gauc.ex"}
     ]
   end
 end
