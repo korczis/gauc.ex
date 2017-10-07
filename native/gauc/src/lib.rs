@@ -50,6 +50,7 @@ rustler_export_nifs! {
     [
       ("connect", 1, connect),
       ("disconnect", 1, disconnect),
+      ("clients", 0, clients),
       ("add", 3, add),
       ("append", 3, append),
       ("get", 2, get),
@@ -99,6 +100,16 @@ fn disconnect<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a
             Ok((atoms::error(), (atoms::invalid_handle(), handle)).encode(env))
         }
     }
+}
+
+fn clients<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
+    let mut keys = Vec::new();
+
+    for key in CLIENTS.lock().unwrap().keys() {
+        keys.push(key.clone());
+    }
+
+    Ok((atoms::ok(), keys).encode(env))
 }
 
 fn add<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {

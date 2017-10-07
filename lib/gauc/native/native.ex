@@ -7,6 +7,7 @@ defmodule Gauc.Native do
 
   def connect(_connection_string), do: throw :nif_not_loaded
   def disconnect(_handle), do: throw :nif_not_loaded
+  def clients(), do: throw :nif_not_loaded
 
   def add(_handle, _a, _b), do: throw :nif_not_loaded
   def append(_handle, _a, _b), do: throw :nif_not_loaded
