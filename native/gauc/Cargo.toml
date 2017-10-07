@@ -10,7 +10,9 @@ crate-type = ["dylib"]
 
 [dependencies]
 # dyon = "0.24.7"
+byteorder = "1.1"
+gauc = { git = "https://github.com/korczis/gauc" }
+lazy_static = "0.2"
 rustler = "0.15.1"
 rustler_codegen = "0.15.1"
-lazy_static = "0.2"
-gauc = { git = "https://github.com/korczis/gauc" }
+uuid = { version = "0.5", features = ["v4"] }

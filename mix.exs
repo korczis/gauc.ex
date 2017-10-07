@@ -19,6 +19,7 @@ defmodule Gauc.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      applications: [:poolboy],
       extra_applications: [:logger]
     ]
   end
@@ -26,16 +27,18 @@ defmodule Gauc.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:benchee, "~> 0.9"},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:poolboy, "~> 1.5"},
       {:rustler, "~> 0.10"},
     ]
   end
 
   def rustler_crates do
     [
-      fintech: [
+      gauc: [
         path: "native/gauc",
-        mode: :debug
+        mode: :release
       ]
     ]
   end
