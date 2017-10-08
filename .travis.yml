@@ -1,0 +1,44 @@
+language: elixir
+matrix:
+  include:
+    - otp_release: 19.3
+      elixir: 1.5
+    - otp_release: 20.0
+      elixir: 1.5
+
+env:
+ global:
+   - MIX_ENV=test
+
+before_install:
+  # Install libcouchbase
+  - wget http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-2-amd64.deb
+  - sudo dpkg -i couchbase-release-1.0-2-amd64.deb
+  - sudo apt-get update
+  - sudo apt-get install libcouchbase-dev libcouchbase2-bin build-essential libstdc++6 libc6 g++ llvm clang runit wget python-httplib2
+  # Install rustup and rust
+  - curl https://sh.rustup.rs -sSf | sh -s -- -y
+  - export PATH=$HOME/.cargo/bin:$PATH
+  - rustup update
+  - rustc -Vv
+  - cargo -V
+  - rustup default nightly
+  - rustup component add rust-src
+  - export RUST_SRC_PATH=`rustc --print sysroot`/lib/rustlib/src/rust/src
+  - export RUST_BACKTRACE=1
+
+install:
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
+
+script:
+  - cargo build
+  - mix deps.compile
+  - mix compile
+  - mix credo -a --strict
+  - mix test --trace
+
+cache:
+  - bundler
+  - cargo
