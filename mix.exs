@@ -12,6 +12,7 @@ defmodule Gauc.Mixfile do
       rustler_crates: rustler_crates(),
       description: description(),
       package: package(),
+      aliases: aliases(),
       deps: deps(),
       docs: docs(),
       dialyzer: [plt_add_deps: :transitive]
@@ -88,6 +89,25 @@ defmodule Gauc.Mixfile do
       ],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/korczis/gauc.ex"}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      "check": [
+        "test --trace",
+        "credo --strict --all",
+        "hex.audit",
+        "hex.outdated",
+        # "escript.build",
+        "app.tree"
+      ]
     ]
   end
 end
