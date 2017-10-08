@@ -77,9 +77,9 @@ defmodule Gauc.Worker do
   end
 
   def terminate(reason, state) do
-    IO.puts("Terminating ...")
-    Logger.debug(reason)
-    Logger.debug(state)
+    Logger.debug fn() ->
+      "#{__MODULE__} - terminate(), reason: #{inspect(reason)}, state: #{inspect(state)}"
+    end
 
     Client.disconnect(state[:handle])
   end
