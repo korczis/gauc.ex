@@ -37,5 +37,9 @@ hexdocs: https://hexdocs.pm/gauc
 
 ```elixir
 config :gauc, Gauc,
-  url: "couchbase://localhost/default"
+  url: "couchbase://localhost/default",
+  pool: [
+    size: 2,
+    max_overflow: 4
+  ]
 ```
