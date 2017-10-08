@@ -51,13 +51,13 @@ rustler_export_nifs! {
       ("connect", 1, connect),
       ("disconnect", 1, disconnect),
       ("clients", 0, clients),
-      ("add", 3, add),
-      ("append", 3, append),
+      ("add", 5, add),
+      ("append", 5, append),
       ("get", 2, get),
-      ("prepend", 3, prepend),
-      ("replace", 3, replace),
-      ("set", 3, set),
-      ("upsert", 3, upsert)
+      ("prepend", 5, prepend),
+      ("replace", 5, replace),
+      ("set", 5, set),
+      ("upsert", 5, upsert)
     ],
     Some(on_load)
 }
@@ -102,11 +102,11 @@ fn disconnect<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a
     }
 }
 
-fn clients<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
+fn clients<'a>(env: NifEnv<'a>, _args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let mut keys = Vec::new();
 
-    for key in CLIENTS.lock().unwrap().keys() {
-        keys.push(key.clone());
+    for (handle, client) in CLIENTS.lock().unwrap().iter() {
+        keys.push((*handle, client.uri.clone()));
     }
 
     Ok((atoms::ok(), keys).encode(env))
@@ -116,12 +116,14 @@ fn add<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
+    let cas: u64 = args[3].decode()?;
+    let exptime: u32 = args[4].decode()?;
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.add_sync(&id[..], &doc[..], 0, 0) {
-                Ok(_res) => {
-                    Ok(atoms::ok().encode(env))
+            match client.add_sync(&id[..], &doc[..], cas, exptime) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))
@@ -139,12 +141,14 @@ fn append<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
+    let cas: u64 = args[3].decode()?;
+    let exptime: u32 = args[4].decode()?;
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.append_sync(&id[..], &doc[..], 0, 0) {
-                Ok(_res) => {
-                    Ok(atoms::ok().encode(env))
+            match client.append_sync(&id[..], &doc[..], cas, exptime) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))
@@ -163,7 +167,7 @@ fn get<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.get_sync(&id[..], 0) {
+            match client.get_sync(&id[..]) {
                 Ok(result) => {
                     // let cas = result.cas.to_string();
                     let value = result.value.unwrap();
@@ -205,12 +209,14 @@ fn replace<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> 
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
+    let cas: u64 = args[3].decode()?;
+    let exptime: u32 = args[4].decode()?;
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.replace_sync(&id[..], &doc[..], 0, 0) {
-                Ok(_res) => {
-                    Ok(atoms::ok().encode(env))
+            match client.replace_sync(&id[..], &doc[..], cas, exptime) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))
@@ -227,12 +233,14 @@ fn set<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
+    let cas: u64 = args[3].decode()?;
+    let exptime: u32 = args[4].decode()?;
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.set_sync(&id[..], &doc[..], 0, 0) {
-                Ok(_res) => {
-                    Ok(atoms::ok().encode(env))
+            match client.set_sync(&id[..], &doc[..], cas, exptime) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))
@@ -249,12 +257,14 @@ fn upsert<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
+    let cas: u64 = args[3].decode()?;
+    let exptime: u32 = args[4].decode()?;
 
     match CLIENTS.lock().unwrap().get_mut(&handle) {
         Some(ref mut client) => {
-            match client.upsert_sync(&id[..], &doc[..], 0, 0) {
-                Ok(_res) => {
-                    Ok(atoms::ok().encode(env))
+            match client.upsert_sync(&id[..], &doc[..], cas, exptime) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))

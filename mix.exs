@@ -4,7 +4,7 @@ defmodule Gauc.Mixfile do
   def project do
     [
       app: :gauc,
-      version: "0.5.0",
+      version: "0.6.1",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -28,7 +28,9 @@ defmodule Gauc.Mixfile do
   defp deps do
     [
       {:benchee, "~> 0.9"},
+      {:credo, "~> 0.8"},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:rustler, "~> 0.10"},
     ]
