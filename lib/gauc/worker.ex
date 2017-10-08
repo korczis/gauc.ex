@@ -50,7 +50,7 @@ defmodule Gauc.Worker do
     {:reply, Client.upsert(state[:handle], id, doc), state}
   end
 
-  def handle_call({:stop, reason, new_state}, from, state) do
+  def handle_call({:stop, reason, new_state}, _from, _state) do
     IO.puts("Stopping")
     {:stop, reason, new_state}
   end
@@ -60,18 +60,18 @@ defmodule Gauc.Worker do
     {:noreply, state}
   end
 
-  def handle_info({:DOWN, ref, :process, _pid, _reason}, state) do
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
     IO.puts "down"
     {:noreply, state}
   end
 
-  def handle_info(msg, from, state) do
+  def handle_info(msg, _from, state) do
     Logger.debug(msg)
 
     {:noreply, state}
   end
 
-  def handle_cast(msg, from, state) do
+  def handle_cast(msg, _from, state) do
     Logger.debug(msg)
     {:noreply, state}
   end

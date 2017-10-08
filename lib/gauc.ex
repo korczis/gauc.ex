@@ -10,8 +10,6 @@ defmodule Gauc do
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
-
     poolboy_config = [
       {:name, {:local, pool_worker_module()}},
       {:worker_module, pool_worker_module()},
