@@ -4,7 +4,7 @@ defmodule Gauc.Mixfile do
   def project do
     [
       app: :gauc,
-      version: "0.7.0",
+      version: "0.8.0",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -12,15 +12,26 @@ defmodule Gauc.Mixfile do
       rustler_crates: rustler_crates(),
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: [
+        source_ref: "master",
+        main: "Gauc",
+        canonical: "http://hexdocs.pm/gauc",
+        source_url: "https://github.com/korczis/gauc"
+      ]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:poolboy],
-      extra_applications: [:logger]
+      applications: [
+        :poolboy
+      ],
+      extra_applications: [
+        :logger
+      ],
+      mod: {Gauc, []}
     ]
   end
 
