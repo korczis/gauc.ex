@@ -5,9 +5,13 @@ defmodule Gauc.NativeTest do
   @host "couchbase://localhost/default"
 
   describe "clients/0" do
-    test "returns clients" do
-      clients = Gauc.Native.clients
-      assert {:ok, _} = clients
+    test "returns list of clients" do
+      assert {:ok, clients} = Gauc.Native.clients
+      assert is_list(clients)
+
+      # clients list may be empty
+#      assert {{_, _}, url} = List.first(clients)
+#      assert url == @host
     end
   end
 
@@ -20,12 +24,12 @@ defmodule Gauc.NativeTest do
   describe "disconnect/1" do
     test "disconnects from server" do
       assert {:ok, handle} = Gauc.Native.connect(@host)
-      assert {:ok, handle} = Gauc.Native.disconnect(handle)
+      assert {:ok, _handle} = Gauc.Native.disconnect(handle)
     end
 
     test "returns error when using invalid handle" do
       handle = {1, 2}
-      assert {:error, {:invalid_handle, handle}} = Gauc.Native.disconnect(handle)
+      assert {:error, {:invalid_handle, _handle}} = Gauc.Native.disconnect(handle)
     end
   end
 end
