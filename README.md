@@ -1,3 +1,3 @@
-# gauc.ex
+# Gauc
 
-Elxir Wrapper for Gauc - Rust Wrapper for Couchbase
+Elxir Wrapper for Gauc - Rust Wrapper of Couchbase

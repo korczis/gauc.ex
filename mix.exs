@@ -13,12 +13,8 @@ defmodule Gauc.Mixfile do
       description: description(),
       package: package(),
       deps: deps(),
-      docs: [
-        source_ref: "master",
-        main: "Gauc",
-        canonical: "http://hexdocs.pm/gauc",
-        source_url: "https://github.com/korczis/gauc"
-      ]
+      docs: docs(),
+      dialyzer: [plt_add_deps: :transitive]
     ]
   end
 
@@ -40,10 +36,23 @@ defmodule Gauc.Mixfile do
     [
       {:benchee, "~> 0.9"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
       {:rustler, "~> 0.10"},
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "master",
+      main: "Gauc",
+      canonical: "http://hexdocs.pm/gauc",
+      source_url: "https://github.com/korczis/gauc",
+      extras: [
+        "README.md"
+      ]
     ]
   end
 
