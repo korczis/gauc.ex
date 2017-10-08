@@ -49,3 +49,24 @@ config :gauc, Gauc,
     max_overflow: 4
   ]
 ```
+
+## Example
+
+*This section may be outdated, see official examples instead.*
+
+### Worker API
+
+### Client API
+
+```elixir
+iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default")
+{:ok, {3138101329, 3409854531}}
+
+iex(2)> {:ok, id, cas} = Gauc.Client.upsert(handle, "123", "{}")
+{:ok, "123", 1507499098051444736}
+
+iex(3)> {:ok, res} = Gauc.Client.get(handle, "123")
+{:ok, "{}"}
+```
+
+### Native API
