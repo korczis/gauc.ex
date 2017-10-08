@@ -7,16 +7,18 @@ defmodule Gauc.Worker do
 
   require Logger
 
-  alias Client
+  alias Gauc.Client
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, [])
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, [])
   end
 
-  def init(_) do
+  def init(state) do
     Process.flag(:trap_exit, true)
 
-    {:ok, handle} = Client.connect("couchbase://localhost/default")
+    url = state[:url]
+
+    {:ok, handle} = Client.connect(url)
     {:ok, [handle: handle]}
   end
 

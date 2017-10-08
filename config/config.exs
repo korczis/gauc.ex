@@ -21,6 +21,8 @@ use Mix.Config
 #     config :logger, level: :info
 #
 
+config :logger, level: :debug
+
 config :gauc, Gauc,
   url: "couchbase://localhost/default",
   pool: [

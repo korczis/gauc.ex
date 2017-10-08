@@ -19,9 +19,11 @@ defmodule Gauc do
       {:max_overflow, @config[:pool][:max_overflow]}
     ]
 
+    url = @config[:url]
+
     # Define workers and child supervisors to be supervised
     children = [
-      :poolboy.child_spec(pool_worker_module(), poolboy_config, [])
+      :poolboy.child_spec(pool_worker_module(), poolboy_config, [url: url])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
