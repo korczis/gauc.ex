@@ -5,19 +5,19 @@ defmodule Gauc do
 
   use Application
 
-  @config Application.get_env(:gauc, __MODULE__)
-
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
+    config = get_config()
+
     poolboy_config = [
       {:name, {:local, pool_worker_module()}},
       {:worker_module, pool_worker_module()},
       {:size, @config[:pool][:size]},
-      {:max_overflow, @config[:pool][:max_overflow]}
+      {:max_overflow, config[:pool][:max_overflow]}
     ]
 
-    url = @config[:url]
+    url = config[:url]
 
     # Define workers and child supervisors to be supervised
     children = [
@@ -34,7 +34,12 @@ defmodule Gauc do
     Supervisor.start_link(children, opts)
   end
 
+  defp get_config() do
+    Application.get_env(:gauc, __MODULE__)
+  end
+
   defp pool_worker_module do
-    @config[:pool][:worker] || Gauc.Worker
+    config = get_config()
+    config[:pool][:worker] || Gauc.Worker
   end
 end

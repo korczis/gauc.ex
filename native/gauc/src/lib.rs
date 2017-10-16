@@ -55,6 +55,7 @@ rustler_export_nifs! {
       ("append", 5, append),
       ("get", 2, get),
       ("prepend", 5, prepend),
+      ("remove", 2, remove),
       ("replace", 5, replace),
       ("set", 5, set),
       ("upsert", 5, upsert)
@@ -197,6 +198,25 @@ fn prepend<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> 
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))
                 }
+            }
+        },
+        None => {
+            Ok((atoms::error(), (atoms::invalid_handle(), handle)).encode(env))
+        }
+    }
+}
+
+fn remove<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
+    let handle: (u32, u32) = args[0].decode()?;
+    let id: String = args[1].decode()?;
+
+    match CLIENTS.lock().unwrap().get_mut(&handle) {
+        Some(ref mut client) => {
+            match client.remove_sync(&id[..]) {
+                Ok(res) => {
+                    Ok((atoms::ok(), id, res.cas).encode(env))
+                }
+                Err((_, e)) => Ok((atoms::error(), e.to_string()).encode(env))
             }
         },
         None => {

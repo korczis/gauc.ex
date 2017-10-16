@@ -5,6 +5,9 @@ defmodule Gauc.Client do
 
   alias Gauc.Native
 
+  @default_uri "couchbase://localhost/default"
+  @default_opts [cas: 0, exptime: 0]
+
   @doc """
   Connects to couchbase server.
 
@@ -16,8 +19,8 @@ defmodule Gauc.Client do
       {:ok, {2804783613, 1738359100}}
 
   """
-  def connect(connection_string) do
-    Native.connect(connection_string)
+  def connect(uri \\ @default_uri) do
+    {:ok, handle} = Native.connect(uri)
   end
 
   @doc """
@@ -29,6 +32,7 @@ defmodule Gauc.Client do
 
       iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default")
       {:ok, {2804783613, 1738359100}}
+
       iex(2)> Gauc.Client.disconnect(handle)
       {:ok, {2804783613, 1738359100}}
 
@@ -46,6 +50,7 @@ defmodule Gauc.Client do
 
       iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default")
       {:ok, {2804783613, 1738359100}}
+
       iex(2)> Gauc.Client.clients()
       {:ok, [{{167799369, 732711453}, "couchbase://localhost/default"}]}
 
@@ -54,67 +59,55 @@ defmodule Gauc.Client do
     Native.clients()
   end
 
-  def add(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.add(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def add(handle, id, payload, opts \\ default_opts()) do
+    store(:add, handle, id, payload, opts)
   end
 
-  def append(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.append(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def append(handle, id, payload, opts \\ default_opts()) do
+    store(:append, handle, id, payload, opts)
   end
 
   def get(handle, id) do
     Native.get(handle, id)
   end
 
-  def prepend(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.prepend(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def prepend(handle, id, payload, opts \\ default_opts()) do
+    store(:prepend, handle, id, payload, opts)
   end
 
-  def replace(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.replace(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def remove(handle, id, opts \\ default_opts()) do
+    Native.remove(handle, id)
   end
 
-  def set(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.set(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def replace(handle, id, payload, opts \\ default_opts()) do
+    store(:replace, handle, id, payload, opts)
   end
 
-  def upsert(handle, id, payload, opts \\ [cas: 0, exptime: 0]) do
-    Native.upsert(
-      handle,
-      id,
-      payload,
-      opts[:cas] || 0,
-      opts[:exptime] || 0
-    )
+  def set(handle, id, payload, opts \\ default_opts()) do
+    store(:set, handle, id, payload, opts)
+  end
+
+  def store(op, handle, id, payload, opts \\ default_opts()) do
+    f = case op do
+      :add -> &Native.add/5
+      :append -> &Native.append/5
+      :prepend -> &Native.prepend/5
+      :replace -> &Native.replace/5
+      :set -> &Native.set/5
+      :upsert -> &Native.upsert/5
+    end
+
+    cas = opts[:cas] || @default_opts[:cas]
+    exptime = opts[:exptime] || @default_opts[:exptime]
+
+    f.(handle, id, payload, cas, exptime)
+  end
+
+  def upsert(handle, id, payload, opts \\ default_opts()) do
+    store(:upsert, handle, id, payload, opts)
+  end
+
+  defp default_opts do
+    @default_opts
   end
 end

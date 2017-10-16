@@ -18,8 +18,10 @@ defmodule Gauc.Worker do
 
     url = state[:url]
 
-    {:ok, handle} = Client.connect(url)
-    {:ok, [handle: handle]}
+    case Client.connect(url) do
+      {:ok, handle} -> {:ok, [handle: handle]}
+      err -> {:err, err}
+    end
   end
 
   def handle_call({:add, id, doc}, _from, state) do
@@ -38,6 +40,10 @@ defmodule Gauc.Worker do
     {:reply, Client.prepend(state[:handle], id, doc), state}
   end
 
+  def handle_call({:remove, id}, _from, state) do
+    {:reply, Client.remove(state[:handle], id), state}
+  end
+
   def handle_call({:replace, id, doc}, _from, state) do
     {:reply, Client.replace(state[:handle], id, doc), state}
   end
@@ -47,6 +53,7 @@ defmodule Gauc.Worker do
   end
 
   def handle_call({:upsert, id, doc}, _from, state) do
+    # IO.inspect(doc)
     {:reply, Client.upsert(state[:handle], id, doc), state}
   end
 
