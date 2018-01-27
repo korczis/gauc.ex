@@ -17,8 +17,10 @@ defmodule Gauc.Worker do
     Process.flag(:trap_exit, true)
 
     url = state[:url]
+    username = state[:username]
+    password = state[:password]
 
-    case Client.connect(url) do
+    case Client.connect(url, username, password) do
       {:ok, handle} -> {:ok, [handle: handle]}
       err -> {:err, err}
     end
