@@ -41,7 +41,7 @@ defmodule Gauc.Mixfile do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
-      {:rustler, path: "external/rustler/rustler_mix"},
+      {:rustler, "~> 0.10"},
     ]
   end
 
