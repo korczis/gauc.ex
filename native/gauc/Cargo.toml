@@ -1,6 +1,6 @@
 [package]
 name = "gauc"
-version = "0.6.1"
+version = "0.7.0"
 authors = []
 
 [lib]
@@ -10,7 +10,7 @@ crate-type = ["dylib"]
 
 [dependencies]
 byteorder = "1.1"
-gauc = "0.6.1"
+gauc = "0.8"
 # gauc = { version = "0.6.1", path = "../../../gauc" }
 lazy_static = "0.2"
 # bring back version after rustler > 0.15.1 is release

@@ -3,9 +3,7 @@ defmodule Gauc.Native do
 
   use Rustler, otp_app: :gauc, crate: :gauc
 
-  @spec connect(String.t()) :: {:atom, any()}
-  def connect(_uri), do: throw :nif_not_loaded
-
+  def connect(_uri, _username, _password), do: throw :nif_not_loaded
   def disconnect(_handle), do: throw :nif_not_loaded
 
   def clients, do: throw :nif_not_loaded

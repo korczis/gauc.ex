@@ -3,21 +3,19 @@ defmodule Gauc.NativeTest do
   doctest Gauc
 
   @host "couchbase://localhost/default"
+  @username "Administrator"
+  @password "Administrator"
 
   describe "clients/0" do
     test "returns list of clients" do
       assert {:ok, clients} = Gauc.Native.clients
       assert is_list(clients)
-
-      # clients list may be empty
-#      assert {{_, _}, url} = List.first(clients)
-#      assert url == @host
     end
   end
 
-  describe "connect/1" do
+  describe "connect/3" do
     test "connects to server" do
-      assert {:ok, {_, _}} = Gauc.Native.connect(@host)
+      assert {:ok, {_, _}} = Gauc.Native.connect(@host, @username, @password)
     end
   end
 

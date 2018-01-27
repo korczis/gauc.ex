@@ -13,15 +13,17 @@ defmodule Gauc do
     poolboy_config = [
       {:name, {:local, pool_worker_module()}},
       {:worker_module, pool_worker_module()},
-      {:size, @config[:pool][:size]},
+      {:size, config[:pool][:size]},
       {:max_overflow, config[:pool][:max_overflow]}
     ]
 
     url = config[:url]
+    username = config[:username]
+    password = config[:password]
 
     # Define workers and child supervisors to be supervised
     children = [
-      :poolboy.child_spec(pool_worker_module(), poolboy_config, [url: url])
+      :poolboy.child_spec(pool_worker_module(), poolboy_config, [url: url, username: username, password: password])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

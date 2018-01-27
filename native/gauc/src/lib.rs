@@ -48,7 +48,7 @@ mod atoms {
 rustler_export_nifs! {
     "Elixir.Gauc.Native",
     [
-      ("connect", 1, connect),
+      ("connect", 3, connect),
       ("disconnect", 1, disconnect),
       ("clients", 0, clients),
       ("add", 5, add),
@@ -72,7 +72,17 @@ fn on_load(_env: NifEnv, _load_info: NifTerm) -> bool {
 fn connect<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let connection_string: String = args[0].decode()?;
 
-    match gauc::client::Client::connect(&connection_string[..]) {
+    let username: String = args[1].decode()?;
+    let password: String = args[2].decode()?;
+
+    let mut auth = gauc::client::Authenticator::new(gauc::couchbase::types::auth_type::AuthType::Rbac);
+    auth.passwords.push((
+        username,
+        password,
+        gauc::couchbase::types::auth_type::AuthFlags::Bucket
+    ));
+
+    match gauc::client::Client::connect(&connection_string[..], Some(auth)) {
         Ok(c) => {
             let uuid = Uuid::new_v4();
             let bytes = uuid.as_bytes();

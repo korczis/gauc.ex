@@ -19,8 +19,8 @@ defmodule Gauc.Client do
       {:ok, {2804783613, 1738359100}}
 
   """
-  def connect(uri \\ @default_uri) do
-    {:ok, handle} = Native.connect(uri)
+  def connect(uri \\ @default_uri, username \\ "Administrator", password \\ "Administrator") do
+    {:ok, handle} = Native.connect(uri, username, password)
   end
 
   @doc """
@@ -30,7 +30,7 @@ defmodule Gauc.Client do
 
   ## Examples
 
-      iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default")
+      iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default", "Administrator", "Administrator")
       {:ok, {2804783613, 1738359100}}
 
       iex(2)> Gauc.Client.disconnect(handle)
@@ -48,7 +48,7 @@ defmodule Gauc.Client do
 
   ## Examples
 
-      iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default")
+      iex(1)> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default", "Administrator", "Administrator")
       {:ok, {2804783613, 1738359100}}
 
       iex(2)> Gauc.Client.clients()

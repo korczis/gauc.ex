@@ -1,0 +1,3 @@
+[submodule "external/rustler"]
+	path = external/rustler
+	url = https://github.com/hansihe/rustler.git

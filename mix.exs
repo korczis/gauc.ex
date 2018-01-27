@@ -4,7 +4,7 @@ defmodule Gauc.Mixfile do
   def project do
     [
       app: :gauc,
-      version: "0.12.0",
+      version: "0.13.0",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -41,7 +41,7 @@ defmodule Gauc.Mixfile do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
-      {:rustler, "~> 0.10"},
+      {:rustler, path: "external/rustler/rustler_mix"},
     ]
   end
 
