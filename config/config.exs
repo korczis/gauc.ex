@@ -25,6 +25,8 @@ config :logger, level: :debug
 
 config :gauc, Gauc,
   url: "couchbase://localhost/default",
+  username: "Administrator",
+  password: "Administrator",
   pool: [
     size: 2,
     max_overflow: 4

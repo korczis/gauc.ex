@@ -20,20 +20,28 @@ extern crate uuid;
 use byteorder::{BigEndian, ReadBytesExt};
 
 use rustler::{NifEnv, NifTerm, NifEncoder, NifResult};
+use rustler::resource::ResourceArc;
 
 use std::collections::HashMap;
+use std::sync::{Mutex, RwLock};
 
 use uuid::Uuid;
 
-use std::sync::Mutex;
+struct Handle {
+    handle: RwLock<(u32, u32)>,
+}
+
+impl Drop for Handle {
+    fn drop(&mut self) {
+        println!("Dropping!");
+    }
+}
 
 lazy_static! {
     static ref CLIENTS: Mutex<HashMap<(u32, u32), gauc::client::Client>> = {
         Mutex::new(HashMap::new())
     };
 }
-
-// static mut CLIENTS: Option<HashMap<(u32, u32), gauc::client::Client>> = None;
 
 mod atoms {
     rustler_atoms! {
@@ -58,14 +66,26 @@ rustler_export_nifs! {
       ("remove", 2, remove),
       ("replace", 5, replace),
       ("set", 5, set),
-      ("upsert", 5, upsert)
+      ("upsert", 5, upsert),
+      ("resource_make", 0, resource_make),
+      ("query_view", 3, query_view),
     ],
     Some(on_load)
 }
 
-fn on_load(_env: NifEnv, _load_info: NifTerm) -> bool {
-    // resource_struct_init!(gauc::client::Client, env);
+// TEST RESOURCE
+pub fn resource_make<'a>(env: NifEnv<'a>, _args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
+    let data = Handle {
+        handle: RwLock::new((1, 42)),
+    };
 
+    let resource = ResourceArc::new(data);
+
+    Ok(resource.encode(env))
+}
+
+fn on_load(env: NifEnv, _load_info: NifTerm) -> bool {
+    resource_struct_init!(Handle, env);
     true
 }
 
@@ -295,6 +315,28 @@ fn upsert<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
             match client.upsert_sync(&id[..], &doc[..], cas, exptime) {
                 Ok(res) => {
                     Ok((atoms::ok(), id, res.cas).encode(env))
+                },
+                Err((_, e)) => {
+                    Ok((atoms::error(), e.to_string()).encode(env))
+                }
+            }
+        },
+        None => {
+            Ok((atoms::error(), (atoms::invalid_handle(), handle)).encode(env))
+        }
+    }
+}
+
+fn query_view<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
+    let handle: (u32, u32) = args[0].decode()?;
+    let ddoc: String = args[1].decode()?;
+    let name: String = args[2].decode()?;
+
+    match CLIENTS.lock().unwrap().get_mut(&handle) {
+        Some(ref mut client) => {
+            match client.view_query_sync(&ddoc, &name) {
+                Ok(res) => {
+                    Ok((atoms::ok(), res.value).encode(env))
                 },
                 Err((_, e)) => {
                     Ok((atoms::error(), e.to_string()).encode(env))

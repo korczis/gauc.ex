@@ -8,6 +8,10 @@ defmodule Gauc.Client do
   @default_uri "couchbase://localhost/default"
   @default_opts [cas: 0, exptime: 0]
 
+  def resource_make() do
+    Native.resource_make()
+  end
+
   @doc """
   Connects to couchbase server.
 
@@ -15,7 +19,7 @@ defmodule Gauc.Client do
 
   ## Examples
 
-      iex> Gauc.Client.connect("couchbase://localhost/default")
+      iex> {:ok, handle} = Gauc.Client.connect("couchbase://localhost/default", "Administrator", "Administrator")
       {:ok, {2804783613, 1738359100}}
 
   """
@@ -109,5 +113,29 @@ defmodule Gauc.Client do
 
   defp default_opts do
     @default_opts
+  end
+
+  def query_bucket() do
+    Stream.resource(
+      # Init
+      fn ->
+        File.open!("mix.exs")
+      end,
+      # Next
+      fn file ->
+        case IO.read(file, :line) do
+          data when is_binary(data) -> {[data], file}
+          _ -> {:halt, file}
+        end
+      end,
+      # Close
+      fn file ->
+        File.close(file)
+      end
+    )
+  end
+
+  def query_view(handle, ddoc, name) do
+    Native.query_view(handle, ddoc, name)
   end
 end

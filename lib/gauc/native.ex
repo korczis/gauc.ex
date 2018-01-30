@@ -15,4 +15,8 @@ defmodule Gauc.Native do
   def replace(_handle, _id, _payload, _cas, _exptime), do: throw :nif_not_loaded
   def set(_handle, _id, _payload, _cas, _exptime), do: throw :nif_not_loaded
   def upsert(_handle, _id, _payload, _cas, _exptime), do: throw :nif_not_loaded
+
+  def resource_make(), do: throw :nif_not_loaded
+
+  def query_view(_handle, _ddoc, _name), do: throw :nif_not_loaded
 end
