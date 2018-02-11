@@ -1,6 +1,6 @@
 #![feature(link_args)]
 #![feature(plugin)]
-#![plugin(rustler_codegen)]
+// #![plugin(rustler_codegen)]
 #[cfg(target_os="macos")]
 #[link_args = "-flat_namespace -undefined suppress"]
 extern {}
