@@ -11,9 +11,7 @@ crate-type = ["dylib"]
 [dependencies]
 byteorder = "1.1"
 gauc = "0.8"
-# gauc = { version = "0.6.1", path = "../../../gauc" }
 lazy_static = "0.2"
-# bring back version after rustler > 0.15.1 is release
-rustler = { git = "https://github.com/hansihe/rustler" }
-rustler_codegen = "0.15.1"
+rustler = "0.16"
+rustler_codegen = "0.16"
 uuid = { version = "0.5", features = ["v4"] }

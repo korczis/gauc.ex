@@ -19,7 +19,7 @@ extern crate uuid;
 
 use byteorder::{BigEndian, ReadBytesExt};
 
-use rustler::{Env, Term, Encoder, NifResult};
+use rustler::{NifEnv, NifTerm, NifEncoder, NifResult};
 use rustler::resource::ResourceArc;
 
 use std::collections::HashMap;
@@ -74,7 +74,7 @@ rustler_export_nifs! {
 }
 
 // TEST RESOURCE
-pub fn resource_make<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
+pub fn resource_make<'a>(env: NifEnv<'a>, _args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let data = Handle {
         handle: RwLock::new((1, 42)),
     };
@@ -84,12 +84,12 @@ pub fn resource_make<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>
     Ok(resource.encode(env))
 }
 
-fn on_load(env: Env, _load_info: Term) -> bool {
+fn on_load(env: NifEnv, _load_info: NifTerm) -> bool {
     resource_struct_init!(Handle, env);
     true
 }
 
-fn connect<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn connect<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let connection_string: String = args[0].decode()?;
 
     let username: String = args[1].decode()?;
@@ -120,7 +120,7 @@ fn connect<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn disconnect<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn disconnect<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
 
     match CLIENTS.lock().unwrap().remove(&handle) {
@@ -133,7 +133,7 @@ fn disconnect<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn clients<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn clients<'a>(env: NifEnv<'a>, _args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let mut keys = Vec::new();
 
     for (handle, client) in CLIENTS.lock().unwrap().iter() {
@@ -143,7 +143,7 @@ fn clients<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
     Ok((atoms::ok(), keys).encode(env))
 }
 
-fn add<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn add<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -168,7 +168,7 @@ fn add<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn append<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn append<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -192,7 +192,7 @@ fn append<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn get<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn get<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
 
@@ -214,7 +214,7 @@ fn get<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn prepend<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn prepend<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -236,7 +236,7 @@ fn prepend<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn remove<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn remove<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
 
@@ -255,7 +255,7 @@ fn remove<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn replace<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn replace<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -279,7 +279,7 @@ fn replace<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn set<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn set<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -303,7 +303,7 @@ fn set<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn upsert<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn upsert<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let id: String = args[1].decode()?;
     let doc: String = args[2].decode()?;
@@ -327,7 +327,7 @@ fn upsert<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     }
 }
 
-fn query_view<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn query_view<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     let handle: (u32, u32) = args[0].decode()?;
     let ddoc: String = args[1].decode()?;
     let name: String = args[2].decode()?;

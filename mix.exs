@@ -4,7 +4,7 @@ defmodule Gauc.Mixfile do
   def project do
     [
       app: :gauc,
-      version: "0.16.0",
+      version: "0.17.0",
       elixir: "~> 1.5",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
