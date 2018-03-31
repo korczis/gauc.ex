@@ -68,7 +68,6 @@ rustler_export_nifs! {
       ("set", 5, set),
       ("upsert", 5, upsert),
       ("resource_make", 0, resource_make),
-      ("query_view", 3, query_view),
     ],
     Some(on_load)
 }
@@ -327,24 +326,3 @@ fn upsert<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
     }
 }
 
-fn query_view<'a>(env: NifEnv<'a>, args: &[NifTerm<'a>]) -> NifResult<NifTerm<'a>> {
-    let handle: (u32, u32) = args[0].decode()?;
-    let ddoc: String = args[1].decode()?;
-    let name: String = args[2].decode()?;
-
-    match CLIENTS.lock().unwrap().get_mut(&handle) {
-        Some(ref mut client) => {
-            match client.view_query_sync(&ddoc, &name) {
-                Ok(res) => {
-                    Ok((atoms::ok(), res.value).encode(env))
-                },
-                Err((_, e)) => {
-                    Ok((atoms::error(), e.to_string()).encode(env))
-                }
-            }
-        },
-        None => {
-            Ok((atoms::error(), (atoms::invalid_handle(), handle)).encode(env))
-        }
-    }
-}
